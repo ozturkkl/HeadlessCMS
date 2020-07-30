@@ -1,0 +1,11 @@
+.headlessCMS-container{
+    width: 90%;
+    margin: 20px;
+    padding: 20px 0;
+    border: 1px solid #EDEDED;
+}
+
+.headlessCMS-container h2{
+    margin: 0 50px;
+    padding: 20px;
+}
