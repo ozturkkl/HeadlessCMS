@@ -16,11 +16,15 @@
 <body>
     <h1>Headless Content Manger Demo</h1>
     <div id="headlessCMS" style="min-height: 100px;"></div>
-
     <script>
         const headlessCMS = new HeadlessCMS("#headlessCMS", exampleData);
-        console.log(headlessCMS)
-        headlessCMS.importData([])
+        headlessCMS.importData([[
+            {
+                type: "p",
+                value: "Hello my friend my name is Kemal"
+            }
+        ]])
+        console.log(headlessCMS.exportData())
     </script>
 </body>
 </html>

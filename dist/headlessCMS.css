@@ -1,11 +1,35 @@
+.headlessCMS-container *{
+    margin: 0 35px;
+    padding: 5px;
+}
+
 .headlessCMS-container{
     width: 90%;
     margin: 20px;
-    padding: 20px 0;
-    border: 1px solid #EDEDED;
+    padding: 0;
+    background: rgba(0, 0, 0, 0.164);
+}
+
+.headlessCMS-container .headlessCMS-section{
+    padding: 25px 5px;
+    margin: 50px;
+    background-color: #ededed27;
+    border-radius: 15px;
 }
 
 .headlessCMS-container h2{
-    margin: 0 50px;
     padding: 20px;
+    font-size: 30px;
+}
+.headlessCMS-container h3{
+    padding: 10px 50px;
+    font-size: 22px;
+}
+.headlessCMS-container p{
+    padding: 10px 50px;
+    font-size: 18px;
+}
+.headlessCMS-container ul{
+    padding: 10px 50px;
+    font-size: 18px;
 }
