@@ -15,7 +15,11 @@ const exampleData = [
         {
             type: "p",
             value: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Minima exercitationem similique tempore vero molestias officia consequuntur eum rerum neque autem nulla, corporis dolores! Similique ut molestiae vitae, reiciendis non dolorem.Lorem ipsum dolor sit, amet consectetur adipisicing elit. Minima exercitationem similique tempore vero molestias officia consequuntur eum rerum neque autem nulla, corporis dolores! Similique ut molestiae vitae, reiciendis non dolorem."
-        }
+        },
+        {
+            type: "ul",
+            value: ["Vedo is soo cool.", "Kemo is soo nice.", "Ahmet is soo chill.", "Kazim is soo bold."]
+        },
     ],
     [
         {
@@ -25,6 +29,10 @@ const exampleData = [
         {
             type: "h3",
             value: "This Is a Small Header"
+        },
+        {
+            type: "ul",
+            value: ["Vedo is soo cool.", "Kemo is soo nice.", "Ahmet is soo chill.", "Kazim is soo bold."]
         },
         {
             type: "ul",

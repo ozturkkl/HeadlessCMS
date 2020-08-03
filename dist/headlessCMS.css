@@ -8,13 +8,49 @@
     margin: 20px;
     padding: 0;
     background: rgba(0, 0, 0, 0.164);
+    overflow: hidden;
+    position: relative;
 }
 
 .headlessCMS-container .headlessCMS-section{
+    position: relative;
     padding: 25px 5px;
     margin: 50px;
     background-color: #ededed27;
     border-radius: 15px;
+    height: auto;
+}
+.headlessCMS-container .headlessCMS-slideLeft{
+    transition: 400ms ease-in-out;
+    transform: translateX(-100%);
+    opacity: 0;
+}
+
+.headlessCMS-container .headlessCMS-Btn {
+    margin: 0;
+    padding: 12px;
+    border: none;
+    position: absolute;
+    border-radius: 2px;
+    opacity: .8;
+}
+.headlessCMS-container .headlessCMS-Btn:hover {
+    padding: 11px;
+    opacity: 1;
+    border: 1px rgba(187, 187, 187, 0.514) solid;
+    cursor: pointer;
+}
+.headlessCMS-container .headlessCMS-deleteBtn{
+    background-color: rgba(201, 46, 46);
+    right: 5px;
+    top: 5px;
+    border-top-right-radius: 10px;
+}
+.headlessCMS-container .headlessCMS-addBtn{
+    background-color: rgb(82, 201, 46);
+    left: 5px;
+    top: 5px;
+    border-top-left-radius: 10px;
 }
 
 .headlessCMS-container h2{
@@ -32,4 +68,8 @@
 .headlessCMS-container ul{
     padding: 10px 50px;
     font-size: 18px;
+}
+
+.headlessCMS-container .headlessCMS-transition{
+    transition: 400ms ease-in-out;
 }
