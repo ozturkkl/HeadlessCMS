@@ -18,7 +18,7 @@ const exampleData = [
         },
         {
             type: "ul",
-            value: ["Vedo is soo cool.", "Kemo is soo nice.", "Ahmet is soo chill.", "Kazim is soo bold."]
+            value: ["Element 5", "Element 6", "Element 7", "Element 8"]
         },
     ],
     [
@@ -32,7 +32,7 @@ const exampleData = [
         },
         {
             type: "ul",
-            value: ["Vedo is soo cool.", "Kemo is soo nice.", "Ahmet is soo chill.", "Kazim is soo bold."]
+            value: ["Element 5", "Element 6", "Element 7", "Element 8"]
         },
         {
             type: "ul",
