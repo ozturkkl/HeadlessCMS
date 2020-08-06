@@ -3,22 +3,17 @@ class HeadlessCMS {
         this.elementSelector = elementSelector
         this.element = document.querySelector(elementSelector)
         this.data = []
+        this.dataTypes = []
 
         this.popup = null
         this.popupIndex = null
         this.overlay = null
 
+        this.activeComponent = null
+
         this.initializeModule(data)
     }
 
-    importData(data = []) {
-        this.data = [...this.data, ...data]
-
-        this.createContainer(this.data, this.element)
-    }
-    exportData() {
-        return this.data
-    }
 
     initializeModule(data = []) {
         if (this.element == null) {
@@ -26,120 +21,11 @@ class HeadlessCMS {
             return
         }
 
+        this.setDataTypes()
         this.createPopup()
         this.importData(data)
     }
-    createContainer(data, container) {
-        const addButton = this.createAddButton("container")
 
-        container.textContent = "";
-        container.classList.add("headlessCMS-container")
-        container.appendChild(addButton)
-
-        data.forEach(section => {
-            const newSection = this.createSection()
-            section.forEach(element => {
-                newSection.appendChild(this.createElements(element))
-            })
-            container.appendChild(newSection)
-        });
-    }
-    createElements(element) {
-        const node = document.createElement(element.type)
-        node.textContent = element.value
-
-        if (element.type === "ul" || element.type === "ol") {
-            node.textContent = ""
-            element.value.forEach(value => {
-                const li = document.createElement("li")
-                li.textContent = value
-                node.appendChild(li)
-            })
-        }
-
-        return node
-    }
-    createSection() {
-        const deleteButton = this.createDeleteButton()
-        const addButton = this.createAddButton("section")
-        const node = document.createElement("div")
-
-        node.classList.add("headlessCMS-section")
-        node.appendChild(deleteButton)
-        node.appendChild(addButton)
-
-        return node
-    }
-
-    createDeleteButton() {
-        const button = document.createElement("button")
-        button.innerHTML = "&times;"
-        button.classList.add("headlessCMS-Btn")
-        button.classList.add("headlessCMS-deleteBtn")
-        this.createDeleteButtonListener(button)
-        return button
-    }
-    createDeleteButtonListener(button) {
-        button.addEventListener("click", () => {
-            const node = button.parentNode
-            const nodeIndex = this.getElementIndex(node, 1)
-            node.classList.add("headlessCMS-slideLeft")
-            node.addEventListener("transitionend", () => {
-                this.data.splice(nodeIndex, 1)
-                this.importData()
-            }, { once: true })
-
-        })
-    }
-
-    createAddButton(container) {
-        const button = document.createElement("button")
-        button.innerHTML = "<span>&times;</span>"
-        button.classList.add("headlessCMS-Btn")
-        button.classList.add("headlessCMS-addBtn")
-        this.createAddButtonListener(button, container)
-        return button
-    }
-    createAddButtonListener(button, container) {
-        button.addEventListener("click", () => {
-            if (container === "container") {
-                const node = button.parentNode
-                const section = this.createSection()
-
-                section.classList.add("headlessCMS-transition")
-                section.classList.add("headlessCMS-slideLeft")
-                node.prepend(section)
-                setTimeout(() => {
-                    section.classList.remove("headlessCMS-slideLeft")
-                }, 0)
-
-                node.addEventListener("transitionend", () => {
-                    this.data.unshift([])
-                    this.importData()
-                }, { once: true })
-            }
-            else if (container === "section") {
-                const overlay = this.overlay
-                overlay.classList.add("active")
-                const popup = this.popup
-                popup.classList.add("active")
-                this.popupIndex = this.getElementIndex(button.parentNode, 1)
-
-                Array.from(popup.getElementsByTagName("input")).forEach(input => {
-                    input.value = ""
-                })
-            }
-        })
-    }
-
-    getElementIndex(element, offset = 0) {
-        let i = 0
-        while (element.previousSibling) {
-            element = element.previousSibling
-            i++
-        }
-        return i - offset
-    }
 
     createPopup() {
         const popup = document.createElement("div")
@@ -152,7 +38,7 @@ class HeadlessCMS {
 
         const popupHeader = document.createElement("div")
         popupHeader.classList.add("headlessCMS-popup-header")
-        popupHeader.innerText = "Add Component"
+        popupHeader.innerHTML = `<span>Add Component</span>`
         popupHeader.appendChild(popupHeaderCloseButton)
 
         const popupBody = document.createElement("div")
@@ -184,12 +70,34 @@ class HeadlessCMS {
         const object = this
         let content = null
 
+        function clearPopupBody() {
+            let lastChild = popupBody.lastChild
+            while (lastChild.previousSibling) {
+                lastChild = lastChild.previousSibling
+                lastChild.nextSibling.remove()
+            }
+        }
+
         function createLabel(content, elementID = "") {
             const label = document.createElement("label")
             label.innerText = content
             label.setAttribute("for", elementID)
             return label
         }
+        function createInputField(title, type) {
+            const inputDiv = document.createElement("div")
+            const inputLabel = createLabel(title, "headlessCMS-popup-body-input")
+            const input = document.createElement((type === "p" || type === "ul") ? "textarea" : "input")
+            content = input
+            input.classList.add("headlessCMS-popup-body-input")
+            input.setAttribute("id", "headlessCMS-popup-body-input")
+            input.setAttribute("type", "text")
+            inputDiv.appendChild(inputLabel)
+            inputDiv.appendChild(input)
+
+            return inputDiv
+        }
+
         function createSelect(content) {
             const selectDiv = document.createElement("div")
             const selectLabel = createLabel("Choose the type of the component: ", "headlessCMS-popup-body-select")
@@ -201,8 +109,8 @@ class HeadlessCMS {
             })
             content.forEach(item => {
                 const option = document.createElement("option")
-                option.value = item
-                option.textContent = item
+                option.value = item.type
+                option.textContent = item.value
                 select.appendChild(option)
             })
             selectDiv.appendChild(selectLabel)
@@ -210,62 +118,25 @@ class HeadlessCMS {
 
             return selectDiv
         }
-        function createInputField(title) {
-            const inputDiv = document.createElement("div")
-            const inputLabel = createLabel(title, "headlessCMS-popup-body-input")
-            const input = document.createElement("input")
-            content = input
-            input.classList.add("headlessCMS-popup-body-input")
-            input.setAttribute("id", "headlessCMS-popup-body-input")
-            inputDiv.appendChild(inputLabel)
-            inputDiv.appendChild(input)
+        function selectChanged(value = "h2") {
+            const type = object.dataTypes.find(element => {
+                return element.type === value
+            })
 
-            return inputDiv
-        }
-        function createTextField(title) {
-            const textDiv = document.createElement("div")
-            const textLabel = createLabel(title, "headlessCMS-popup-body-text")
-            const text = document.createElement("textarea")
-            content = text
-            text.classList.add("headlessCMS-popup-body-text")
-            text.setAttribute("id", "headlessCMS-popup-body-text")
-            textDiv.appendChild(textLabel)
-            textDiv.appendChild(text)
+            clearPopupBody()
+            const activeInputElement = createInputField(`${type.value} Content: `, type.type)
+            popupBody.appendChild(activeInputElement)
+            popupBody.appendChild(createDeleteButton(createSaveButton(value)))
 
-            return textDiv
+            return activeInputElement
         }
-        function clearPopupBody() {
-            let lastChild = popupBody.lastChild
-            while (lastChild.previousSibling) {
-                lastChild = lastChild.previousSibling
-                lastChild.nextSibling.remove()
-            }
-        }
-        function selectChanged(value = "Main Header") {
-            switch (value) {
-                case "Main Header":
-                default:
-                    clearPopupBody()
-                    popupBody.appendChild(createInputField("Main Header Content: "))
-                    popupBody.appendChild(createSaveButton(value))
-                    break
-                case "Secondary Header":
-                    clearPopupBody()
-                    popupBody.appendChild(createInputField("Secondary Header Content: "))
-                    popupBody.appendChild(createSaveButton(value))
-                    break
-                case "Paragraph":
-                    clearPopupBody()
-                    popupBody.appendChild(createTextField("Paragraph Content: "))
-                    popupBody.appendChild(createSaveButton(value))
-                    break
-            }
-        }
+
         function createSaveButton(selectValue) {
             const buttonDiv = document.createElement("div")
             const button = document.createElement("button")
             button.textContent = "Add"
             button.classList.add("headlessCMS-popup-body-save-button")
+            button.classList.add("headlessCMS-popup-body-button")
             buttonDiv.appendChild(button)
             createSaveButtonListener(button, selectValue)
 
@@ -273,7 +144,7 @@ class HeadlessCMS {
         }
         function createSaveButtonListener(button, selectValue) {
             content.addEventListener("keyup", (e) => {
-                if (e.keyCode === 13) {
+                if (e.keyCode === 13 && content.tagName !== "TEXTAREA" || e.keyCode === 13 && e.ctrlKey) {
                     button.click()
                 }
             })
@@ -287,42 +158,268 @@ class HeadlessCMS {
                     return
                 }
 
-                switch (selectValue) {
-                    case "Main Header":
-                        object.data[object.popupIndex].push(
-                            {
-                                type: "h2",
-                                value: content.value
-                            }
-                        )
-                        break
-                    case "Secondary Header":
-                        object.data[object.popupIndex].push(
-                            {
-                                type: "h3",
-                                value: content.value
-                            }
-                        )
-                        break
-                    case "Paragraph":
-                        object.data[object.popupIndex].push(
-                            {
-                                type: "p",
-                                value: content.value
-                            }
-                        )
-                        break
-                }
+                object.saveElements(selectValue, content.value)
 
-                object.importData()
                 popup.classList.remove("active")
                 overlay.classList.remove("active")
             })
         }
 
-        popupBody.appendChild(createSelect(["Main Header", "Secondary Header", "Paragraph", "Bullet List"]))
+        function createDeleteButton(div) {
+            const buttonDiv = div
+            const button = document.createElement("button")
+            button.textContent = "Delete Element"
+            button.classList.add("headlessCMS-popup-body-delete-button")
+            button.classList.add("headlessCMS-popup-body-delete-button-hide")
+            button.classList.add("headlessCMS-popup-body-button")
+            buttonDiv.appendChild(button)
+            createDeleteButtonListener(button)
+
+            return buttonDiv
+        }
+        function createDeleteButtonListener(button) {
+            button.addEventListener("click", () => {
+                const elementToDeleteIndex = object.getElementIndex(object.activeComponent, 2)
+
+                console.log(object.data[object.popupIndex].splice(elementToDeleteIndex, 1))
+                object.importData()
+
+                popup.classList.remove("active")
+                overlay.classList.remove("active")
+            })
+        }
+
+        popupBody.appendChild(createSelect(this.dataTypes))
         selectChanged()
+
+        this.selectChanged = selectChanged
+        this.content = content
     }
+    showPopup(mode = "add", button, type = "h2") {
+        this.overlay.classList.add("active")
+        this.popup.classList.add("active")
+        this.popupIndex = this.getElementIndex(button.parentNode, 1)
+        const activeInputElement = this.selectChanged(type).lastChild
+
+        const popupHeader = this.popup.querySelector(".headlessCMS-popup-header").querySelector("span")
+        const deleteButton = this.popup.querySelector(".headlessCMS-popup-body-delete-button")
+        const saveButton = this.popup.querySelector(".headlessCMS-popup-body-save-button")
+        const select = this.popup.querySelector(".headlessCMS-popup-body-select")
+        const selectLabel = this.popup.querySelector(`[for="headlessCMS-popup-body-select"]`)
+        select.value = type
+
+
+        if (mode === "edit") {
+            popupHeader.innerText = `Edit Component`
+            deleteButton.classList.remove("headlessCMS-popup-body-delete-button-hide")
+            saveButton.innerText = `Save`
+            select.disabled = true
+            selectLabel.innerText = "Type of the component: "
+            activeInputElement.value = this.data[this.popupIndex][this.getElementIndex(this.activeComponent, 2)].value
+        }
+        else if (mode === "add") {
+            popupHeader.innerText = `Add Component`
+            deleteButton.classList.add("headlessCMS-popup-body-delete-button-hide")
+            saveButton.innerText = `Add`
+            select.disabled = false
+            selectLabel.innerText = `Choose the type of the component: `
+        }
+    }
+
+
+    importData(data = []) {
+        this.data = [...this.data, ...data]
+
+        this.createContainer(this.data, this.element)
+    }
+    exportData() {
+        return this.data
+    }
+
+
+    createContainer(data, container) {
+        const addButton = this.createAddButton("container")
+
+        container.textContent = "";
+        container.classList.add("headlessCMS-container")
+        container.appendChild(addButton)
+
+        data.forEach(section => {
+            const newSection = this.createSection()
+            section.forEach(element => {
+                const component = this.renderElements(element)
+                newSection.appendChild(component)
+                this.createElementListeners(component, element)
+            })
+            container.appendChild(newSection)
+        });
+    }
+    createSection() {
+        const deleteButton = this.createDeleteButton()
+        const addButton = this.createAddButton("section")
+        const node = document.createElement("div")
+
+        node.classList.add("headlessCMS-section")
+        node.appendChild(deleteButton)
+        node.appendChild(addButton)
+
+        return node
+    }
+    createElementListeners(component, element) {
+        component.addEventListener("mouseenter", () => {
+            document.querySelectorAll(".headlessCMS-container .headlessCMS-hover").forEach(element => {
+                element.classList.remove("headlessCMS-hover")
+            })
+            component.classList.add("headlessCMS-hover")
+        })
+        component.addEventListener("mouseleave", () => {
+            document.querySelectorAll(".headlessCMS-container .headlessCMS-hover").forEach(element => {
+                element.classList.remove("headlessCMS-hover")
+            })
+        })
+        component.addEventListener("click", () => {
+            this.activeComponent = component
+            this.showPopup("edit", component, element.type)
+        })
+    }
+
+    createDeleteButton() {
+        const button = document.createElement("button")
+        button.innerHTML = "&times;"
+        button.classList.add("headlessCMS-Btn")
+        button.classList.add("headlessCMS-deleteBtn")
+        this.createDeleteButtonListener(button)
+        return button
+    }
+    createDeleteButtonListener(button) {
+        button.addEventListener("click", () => {
+            const node = button.parentNode
+            const nodeIndex = this.getElementIndex(node, 1)
+            node.classList.add("headlessCMS-slideLeft")
+            node.addEventListener("transitionend", () => {
+                this.data.splice(nodeIndex, 1)
+                this.importData()
+            }, { once: true })
+        })
+    }
+
+    createAddButton(container) {
+        const button = document.createElement("button")
+        button.innerHTML = (container === "container") ? "Add Section +" : "<span>&times;</span>"
+        button.classList.add("headlessCMS-Btn")
+        button.classList.add("headlessCMS-addBtn")
+        if (container === "container") {
+            button.classList.add("headlessCMS-addBtn-container")
+        }
+        this.createAddButtonListener(button, container)
+        return button
+    }
+    createAddButtonListener(button, container) {
+        button.addEventListener("click", () => {
+            if (container === "container") {
+                const node = button.parentNode
+                const section = this.createSection()
+
+                section.classList.add("headlessCMS-transition")
+                section.classList.add("headlessCMS-slideLeft")
+                node.prepend(section)
+                setTimeout(() => {
+                    section.classList.remove("headlessCMS-slideLeft")
+                }, 0)
+
+                node.addEventListener("transitionend", () => {
+                    this.data.unshift([])
+                    this.importData()
+                }, { once: true })
+            }
+            else if (container === "section") {
+                this.showPopup("add", button)
+            }
+        })
+    }
+
+    getElementIndex(element, offset = 0) {
+        let i = 0
+        while (element.previousSibling) {
+            element = element.previousSibling
+            i++
+        }
+        return i - offset
+    }
+
+
+    saveElements(type, value) {
+        const select = this.popup.querySelector(".headlessCMS-popup-body-select")
+
+        if (select.disabled){
+            this.data[this.popupIndex][this.getElementIndex(this.activeComponent, 2)].value = value
+        }
+        else {
+            this.data[this.popupIndex].push(
+                {
+                    type: type,
+                    value: value
+                }
+            )
+        }
+        this.importData()
+    }
+    setDataTypes() {
+        this.dataTypes = [
+            {
+                type: "h2",
+                value: "Main Header"
+            },
+            {
+                type: "h3",
+                value: "Secondary Header"
+            },
+            {
+                type: "p",
+                value: "Paragraph"
+            },
+            {
+                type: "ul",
+                value: "Bullet List"
+            }
+        ]
+    }
+    renderElements(element) {
+        const node = document.createElement(element.type)
+        node.textContent = element.value
+
+        if (element.type === "ul" || element.type === "ol") {
+            node.textContent = ""
+
+            console.log(element.value)
+            const listValues = element.value.split(/\r?\n/);
+            
+            listValues.forEach(value => {
+                const li = document.createElement("li")
+                li.textContent = value
+                node.appendChild(li)
+            })
+        }
+
+        return node
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
 
 
 }

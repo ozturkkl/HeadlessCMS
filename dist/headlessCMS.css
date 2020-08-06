@@ -59,6 +59,11 @@
     top: 5px;
     border-top-left-radius: 10px;
 }
+.headlessCMS-container .headlessCMS-addBtn-container{
+    width: 100px;
+    font-size: 12px;
+    font-weight: bold;
+}
 .headlessCMS-container .headlessCMS-addBtn span{
     transform: rotate(45deg) translateX(1px) translateY(-1px);
 }
@@ -80,8 +85,11 @@
     font-size: 18px;
 }
 
-.headlessCMS-container .headlessCMS-transition{
-    transition: 400ms ease-in-out;
+.headlessCMS-container .headlessCMS-hover{
+    background-color: #ededed3b;
+    cursor: pointer;
+    transition: 250ms;
+    border-radius: 5px;
 }
 
 .headlessCMS-popup{
@@ -140,9 +148,9 @@
     margin: 10px 0;
 }
 .headlessCMS-popup-body div:last-child{
-    justify-content: flex-end;
+    flex-direction: row-reverse;
 }
-.headlessCMS-popup-body-select, .headlessCMS-popup-body-input, .headlessCMS-popup-body-text, .headlessCMS-popup-body-save-button{
+.headlessCMS-popup-body-select, .headlessCMS-popup-body-input, .headlessCMS-popup-body-save-button, .headlessCMS-popup-body-delete-button{
     margin: 0;
     width: 60%;
     background-color: rgba(218, 218, 218, 0.068);
@@ -160,11 +168,25 @@
 .headlessCMS-popup-body-error{
     border-color: rgba(214, 55, 55, 0.596);
 }
-.headlessCMS-popup-body-save-button{
+.headlessCMS-popup-body-button{
     width: 150px;
     padding: 5px;
     border-radius: 5px;
     font-weight: bold;
+    opacity: .8;
+    cursor: pointer;
+}
+.headlessCMS-popup-body-button:hover{
+    opacity: 1;
+}
+.headlessCMS-popup-body-save-button{
+    background-color: rgb(35, 92, 47);
+}
+.headlessCMS-popup-body-delete-button{
+    background-color: rgb(92, 35, 35);
+}
+.headlessCMS-popup-body-delete-button-hide{
+    display: none;
 }
 .headlessCMS-popup-overlay{
     position: fixed;
@@ -182,4 +204,8 @@
     pointer-events: all;
     opacity: 1;
     overflow: hidden;
+}
+
+.headlessCMS-container .headlessCMS-transition{
+    transition: 400ms ease-in-out;
 }

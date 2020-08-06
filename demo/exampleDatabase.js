@@ -10,7 +10,7 @@ const exampleData = [
         },
         {
             type: "ul",
-            value: ["Element 1", "Element 2", "Element 3", "Element 4"]
+            value: 'Kemo \n is my \n name.'
         },
         {
             type: "p",
@@ -18,7 +18,7 @@ const exampleData = [
         },
         {
             type: "ul",
-            value: ["Element 5", "Element 6", "Element 7", "Element 8"]
+            value: 'What \n is your \n name.'
         },
     ],
     [
@@ -32,11 +32,7 @@ const exampleData = [
         },
         {
             type: "ul",
-            value: ["Element 5", "Element 6", "Element 7", "Element 8"]
-        },
-        {
-            type: "ul",
-            value: ["Element 1", "Element 2", "Element 3", "Element 4"]
+            value: 'Element 5 \n Element 6 \n Element 7\n Element 8'
         },
 
     ]
