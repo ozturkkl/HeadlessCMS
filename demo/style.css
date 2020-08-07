@@ -16,3 +16,23 @@
             justify-content: center;
             flex-direction: column;
         }
+
+        .editBtn{
+            padding: 15px 25px;
+            background-color: rgb(80, 80, 80);
+            cursor: pointer;
+            outline: none;
+            color: #EDEDED;
+            border-radius: 3px;
+            font-weight: bold;
+            border: 1px solid rgb(161, 161, 161);
+        }
+        .editBtn:hover{
+            background-color: rgb(117, 117, 117);
+            color: white;
+            border: 1px solid rgb(219, 219, 219);
+        }
+        .editBtn:active{
+            background-color: rgb(73, 73, 73);
+            border: 1px solid rgb(219, 219, 219);
+        }

@@ -11,6 +11,8 @@ class HeadlessCMS {
 
         this.activeComponent = null
 
+        this.editEnabled = false
+
         this.initializeModule(data)
     }
 
@@ -231,8 +233,11 @@ class HeadlessCMS {
         this.data = [...this.data, ...data]
 
         this.createContainer(this.data, this.element)
-        this.enableSectionDragging()
-        this.enableComponentDragging()
+
+        if (this.editEnabled) {
+            this.enableSectionDragging()
+            this.enableComponentDragging()
+        }
     }
     exportData() {
         return this.data
@@ -244,14 +249,16 @@ class HeadlessCMS {
 
         container.textContent = "";
         container.classList.add("headlessCMS-container")
-        container.appendChild(addButton)
+        if (this.editEnabled)
+            container.appendChild(addButton)
 
         data.forEach(section => {
             const newSection = this.createSection()
             section.forEach(element => {
                 const component = this.renderElements(element)
                 newSection.appendChild(component)
-                this.createElementListeners(component, element)
+                if (this.editEnabled)
+                    this.createElementListeners(component, element)
             })
             container.appendChild(newSection)
         });
@@ -262,8 +269,10 @@ class HeadlessCMS {
         const node = document.createElement("div")
 
         node.classList.add("headlessCMS-section")
-        node.appendChild(deleteButton)
-        node.appendChild(addButton)
+        if (this.editEnabled) {
+            node.appendChild(deleteButton)
+            node.appendChild(addButton)
+        }
 
         return node
     }
@@ -440,9 +449,13 @@ class HeadlessCMS {
             const afterElement = this.elementAfterMouse(components, e.clientY, draggingClass).element
             const beforeElement = this.elementBeforeMouse(components, e.clientY, draggingClass).element
 
+            // BEWARE OF CONFUSING AS HECK DRAG AND DROP CALCULATIONS
             if (afterElement) {
                 if (beforeElement && this.getElementIndex(beforeElement.parentNode, 1) !== dragStartSection && this.getElementIndex(afterElement.parentNode, 1) !== dragStartSection)
                     sections[this.getElementIndex(beforeElement.parentNode, 1)].appendChild(dragging)
+                else if (!beforeElement && this.getElementIndex(afterElement.parentNode, 1) !== dragStartSection) { 
+                    sections[this.getElementIndex(afterElement.parentNode, 1)].appendChild(dragging)
+                }
                 else {
                     if (this.getElementIndex(afterElement.parentNode, 1) !== dragStartSection)
                         sections[dragStartSection].appendChild(dragging)
@@ -451,7 +464,7 @@ class HeadlessCMS {
                 }
             }
             else
-                sections[sections.length - 1].appendChild(dragging)
+                sections[this.getElementIndex(beforeElement.parentNode, 1)].appendChild(dragging)
         }
         sections.forEach(section => {
             section.removeEventListener("dragover", this.componentDragHandler)
@@ -545,6 +558,15 @@ class HeadlessCMS {
         }
 
         return node
+    }
+
+    enableEdit() {
+        this.editEnabled = true
+        this.importData()
+    }
+    disableEdit() {
+        this.editEnabled = false
+        this.importData()
     }
 
 
