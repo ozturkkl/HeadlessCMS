@@ -181,7 +181,7 @@ class HeadlessCMS {
             button.addEventListener("click", () => {
                 const elementToDeleteIndex = object.getElementIndex(object.activeComponent, 2)
 
-                console.log(object.data[object.popupIndex].splice(elementToDeleteIndex, 1))
+                object.data[object.popupIndex].splice(elementToDeleteIndex, 1)
                 object.importData()
 
                 popup.classList.remove("active")
@@ -231,6 +231,8 @@ class HeadlessCMS {
         this.data = [...this.data, ...data]
 
         this.createContainer(this.data, this.element)
+        this.enableSectionDragging()
+        this.enableComponentDragging()
     }
     exportData() {
         return this.data
@@ -347,11 +349,153 @@ class HeadlessCMS {
         return i - offset
     }
 
+    enableSectionDragging() {
+        const draggingClass = "headlessCMS-section-dragging"
+        const sections = [...this.element.children].filter(section => section.classList.contains("headlessCMS-section"))
+
+        let dragStartIndex = null
+        let dragEndIndex = null
+
+        sections.forEach(section => {
+            section.draggable = true
+
+            section.addEventListener("dragstart", (e) => {
+                e.stopPropagation()
+                section.classList.add(draggingClass)
+                dragStartIndex = this.getElementIndex(section, 1)
+            })
+            section.addEventListener("dragend", (e) => {
+                e.stopPropagation()
+                section.classList.remove(draggingClass)
+                dragEndIndex = this.getElementIndex(section, 1)
+
+                if (dragStartIndex !== dragEndIndex) {
+                    this.data.splice(dragEndIndex, 0, this.data.splice(dragStartIndex, 1)[0])
+                    this.importData()
+                }
+            })
+        })
+
+        const dragoverHandler = (e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            const dragging = this.element.querySelector(`.${draggingClass}`)
+            if (!dragging) return
+
+            const afterElement = this.elementAfterMouse(sections, e.clientY, draggingClass).element
+            if (afterElement)
+                this.element.insertBefore(dragging, afterElement)
+            else
+                this.element.appendChild(dragging)
+        }
+        this.element.removeEventListener("dragover", this.sectionDragHandler)
+        this.element.addEventListener("dragover", dragoverHandler)
+        this.sectionDragHandler = dragoverHandler
+    }
+    enableComponentDragging() {
+        const draggingClass = "headlessCMS-component-dragging"
+        const sections = [...this.element.children].filter(section => section.classList.contains("headlessCMS-section"))
+        const components = []
+        sections.forEach(section => {
+            components.push(...[...section.children].filter(component => component.tagName !== "BUTTON"))
+        })
+
+        let dragStartIndex = null
+        let dragEndIndex = null
+        let dragStartSection = null
+        let dragEndSection = null
+
+
+        components.forEach(component => {
+            component.draggable = true
+
+            component.addEventListener("dragstart", (e) => {
+                e.stopPropagation()
+                component.classList.add(draggingClass)
+                dragStartIndex = this.getElementIndex(component, 2)
+                dragStartSection = this.getElementIndex(component.parentNode, 1)
+            })
+            component.addEventListener("dragend", (e) => {
+                e.stopPropagation()
+                component.classList.remove(draggingClass)
+                dragEndIndex = this.getElementIndex(component, 2)
+                dragEndSection = this.getElementIndex(component.parentNode, 1)
+
+                if (dragStartIndex === dragEndIndex && dragStartSection === dragEndSection)
+                    return
+
+                const item = this.data[dragStartSection].splice(dragStartIndex, 1)[0]
+                this.data[dragEndSection].splice(dragEndIndex, 0, item)
+                this.importData()
+
+                this.importData()
+            })
+        })
+
+        const dragoverHandler = (e) => {
+            e.preventDefault()
+            const dragging = this.element.querySelector(`.${draggingClass}`)
+            if (!dragging) return
+
+            const afterElement = this.elementAfterMouse(components, e.clientY, draggingClass).element
+            const beforeElement = this.elementBeforeMouse(components, e.clientY, draggingClass).element
+
+            if (afterElement) {
+                if (beforeElement && this.getElementIndex(beforeElement.parentNode, 1) !== dragStartSection && this.getElementIndex(afterElement.parentNode, 1) !== dragStartSection)
+                    sections[this.getElementIndex(beforeElement.parentNode, 1)].appendChild(dragging)
+                else {
+                    if (this.getElementIndex(afterElement.parentNode, 1) !== dragStartSection)
+                        sections[dragStartSection].appendChild(dragging)
+                    else
+                        sections[dragStartSection].insertBefore(dragging, afterElement)
+                }
+            }
+            else
+                sections[sections.length - 1].appendChild(dragging)
+        }
+        sections.forEach(section => {
+            section.removeEventListener("dragover", this.componentDragHandler)
+            section.addEventListener("dragover", dragoverHandler)
+        })
+        this.componentDragHandler = dragoverHandler
+    }
+    elementAfterMouse(elements, y, draggingClass) {
+        elements = elements.filter(element => !element.classList.contains(draggingClass))
+
+        const resultElement = elements.reduce((result, element) => {
+            const boundingBox = element.getBoundingClientRect()
+            const offset = y - (boundingBox.y + boundingBox.height / 2)
+            if (offset < 0 && offset > result.offset)
+                return {
+                    offset: offset, element: element
+                }
+            else
+                return result
+        }, { offset: Number.NEGATIVE_INFINITY })
+
+        return resultElement
+    }
+    elementBeforeMouse(elements, y, draggingClass) {
+        elements = elements.filter(element => !element.classList.contains(draggingClass))
+
+        const resultElement = elements.reduce((result, element) => {
+            const boundingBox = element.getBoundingClientRect()
+            const offset = y - (boundingBox.y + boundingBox.height / 2)
+            if (offset > 0 && offset < result.offset)
+                return {
+                    offset: offset, element: element
+                }
+            else
+                return result
+        }, { offset: Number.POSITIVE_INFINITY })
+
+        return resultElement
+    }
 
     saveElements(type, value) {
         const select = this.popup.querySelector(".headlessCMS-popup-body-select")
 
-        if (select.disabled){
+        if (select.disabled) {
             this.data[this.popupIndex][this.getElementIndex(this.activeComponent, 2)].value = value
         }
         else {
@@ -391,9 +535,8 @@ class HeadlessCMS {
         if (element.type === "ul" || element.type === "ol") {
             node.textContent = ""
 
-            console.log(element.value)
             const listValues = element.value.split(/\r?\n/);
-            
+
             listValues.forEach(value => {
                 const li = document.createElement("li")
                 li.textContent = value
@@ -419,7 +562,7 @@ class HeadlessCMS {
 
 
 
-    
+
 
 
 }

@@ -20,6 +20,10 @@
     border-radius: 15px;
     height: auto;
 }
+.headlessCMS-container .headlessCMS-section-dragging, .headlessCMS-container .headlessCMS-component-dragging{
+    opacity: .7;
+    border: 1px white solid;
+}
 .headlessCMS-container .headlessCMS-slideLeft{
     transition: 400ms ease-in-out;
     transform: translateX(-100%);
