@@ -6,12 +6,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
 
-    <link rel="stylesheet" href="/dist/headlessCMS.css">
-    <link rel="stylesheet" href="/demo/style.css">
+    <link rel="stylesheet" href="../dist/headlessCMS.css">
+    <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;400&display=swap" rel="stylesheet">
 
-    <script src="/dist/headlessCMS.js"></script>
-    <script src="/demo/exampleDatabase.js"></script>
+    <script src="../dist/headlessCMS.js"></script>
+    <script src="exampleDatabase.js"></script>
 
 </head>
 
@@ -54,6 +54,7 @@
         function editButtonClick() {
             if (headlessCMS.editEnabled) {
                 headlessCMS.disableEdit()
+                alert("Look at the console for the object for the content!")
                 console.log(headlessCMS.exportData())
             }
             else
