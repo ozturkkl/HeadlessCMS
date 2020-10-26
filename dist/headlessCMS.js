@@ -25,7 +25,7 @@ class HeadlessCMS {
 
         this.setDataTypes()
         this.createPopup()
-        this.importData(data)
+        this.refreshData(data)
     }
 
 
@@ -184,7 +184,7 @@ class HeadlessCMS {
                 const elementToDeleteIndex = object.getElementIndex(object.activeComponent, 2)
 
                 object.data[object.popupIndex].splice(elementToDeleteIndex, 1)
-                object.importData()
+                object.refreshData()
 
                 popup.classList.remove("active")
                 overlay.classList.remove("active")
@@ -228,8 +228,7 @@ class HeadlessCMS {
         }
     }
 
-
-    importData(data = []) {
+    refreshData(data = []) {
         this.data = [...this.data, ...data]
 
         this.createContainer(this.data, this.element)
@@ -238,6 +237,11 @@ class HeadlessCMS {
             this.enableSectionDragging()
             this.enableComponentDragging()
         }
+    }
+
+    importData(data = []){
+        this.data = data
+        this.refreshData()
     }
     exportData() {
         return this.data
@@ -309,7 +313,7 @@ class HeadlessCMS {
             node.classList.add("headlessCMS-slideLeft")
             node.addEventListener("transitionend", () => {
                 this.data.splice(nodeIndex, 1)
-                this.importData()
+                this.refreshData()
             }, { once: true })
         })
     }
@@ -340,7 +344,7 @@ class HeadlessCMS {
 
                 node.addEventListener("transitionend", () => {
                     this.data.unshift([])
-                    this.importData()
+                    this.refreshData()
                 }, { once: true })
             }
             else if (container === "section") {
@@ -380,7 +384,7 @@ class HeadlessCMS {
 
                 if (dragStartIndex !== dragEndIndex) {
                     this.data.splice(dragEndIndex, 0, this.data.splice(dragStartIndex, 1)[0])
-                    this.importData()
+                    this.refreshData()
                 }
             })
         })
@@ -435,9 +439,9 @@ class HeadlessCMS {
 
                 const item = this.data[dragStartSection].splice(dragStartIndex, 1)[0]
                 this.data[dragEndSection].splice(dragEndIndex, 0, item)
-                this.importData()
+                this.refreshData()
 
-                this.importData()
+                this.refreshData()
             })
         })
 
@@ -519,7 +523,7 @@ class HeadlessCMS {
                 }
             )
         }
-        this.importData()
+        this.refreshData()
     }
     setDataTypes() {
         this.dataTypes = [
@@ -562,11 +566,11 @@ class HeadlessCMS {
 
     enableEdit() {
         this.editEnabled = true
-        this.importData()
+        this.refreshData()
     }
     disableEdit() {
         this.editEnabled = false
-        this.importData()
+        this.refreshData()
     }
 
 
