@@ -7,7 +7,7 @@ This is not a full blown CMS, it is merely an experiment that has drag and drop 
 Click [here](https://ozturkkl.github.io/HeadlessCMS/demo/index.html) to view the demo.
 
 ## Usage
-Download these files [source file](https://raw.githubusercontent.com/ozturkkl/HeadlessCMS/master/dist/headlessCMS.js), [css file](https://raw.githubusercontent.com/ozturkkl/HeadlessCMS/master/dist/headlessCMS.css) and include it in your project after Leaflet.
+Download these files [source file](https://raw.githubusercontent.com/ozturkkl/HeadlessCMS/master/dist/headlessCMS.js), [css file](https://raw.githubusercontent.com/ozturkkl/HeadlessCMS/master/dist/headlessCMS.css) and include it in your project.
 
 Also, check out [exampleData](https://raw.githubusercontent.com/ozturkkl/HeadlessCMS/master/demo/exampleDatabase.js) for the example layout data that was used to create the demo.
 
