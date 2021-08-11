@@ -1,5 +1,5 @@
 # HeadlessCMS
-A small content management library that enables you to have user interaction in your web page.
+A small content management app that enables you to have user interaction in your web page.
 
 This is not a full blown CMS, it is merely an experiment that has drag and drop sorting and managing functionality.
 
@@ -31,7 +31,7 @@ const headlessCMS = new HeadlessCMS("#headlessCMS", exampleData);
 
 
 ## Methods
-.importData(\[data\]) --> Takes in the data that is provided and sets the state of the CMS to that. The data should be exported from the object or should have the structure that is provided in the [exampleData](https://raw.githubusercontent.com/ozturkkl/HeadlessCMS/master/demo/exampleDatabase.js). Defaults to []
+- .importData(\[data\]) --> Takes in the data that is provided and sets the state of the CMS to that. The data should be exported from the object or should have the structure that is provided in the [exampleData](https://raw.githubusercontent.com/ozturkkl/HeadlessCMS/master/demo/exampleDatabase.js). Defaults to []
 ```js
 headlessCMS.importData([
     [
@@ -65,15 +65,15 @@ headlessCMS.importData([
 ])
 ```
 
-.exportData() --> Exports the current state of the CMS as an array. This object should be saved to the database and should be fetched and imported to the headlessCMS object every time the page is refreshed.
+- .exportData() --> Exports the current state of the CMS as an array. This object should be saved to the database and should be fetched and imported to the headlessCMS object every time the page is refreshed.
 ```js
 console.log(headlessCMS.exportData())
 
 // Will print the data array.
 ```
 
-.enableEdit() --> Will enable edit mode for the CMS.
-.disableEdit() --> Will disable edit mode for the CMS.
+- .enableEdit() --> Will enable edit mode for the CMS.
+- .disableEdit() --> Will disable edit mode for the CMS.
 Edit mode allows users to add new components and drag and drop elements to customize the content. A button can toggle between these mods.
 ```js
 function editButtonClick() {
