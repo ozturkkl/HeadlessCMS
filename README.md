@@ -3,6 +3,8 @@ A small content management app that enables you to have user interaction in your
 
 This is not a full blown CMS, it is merely an experiment that has drag and drop sorting and managing functionality.
 
+![Preview](https://user-images.githubusercontent.com/51798197/131587550-f89fd07f-ef23-4689-b3e2-39da445d1ced.png)
+
 ## Demo
 Click [here](https://ozturkkl.github.io/HeadlessCMS/demo/index.html) to view the demo.
 
